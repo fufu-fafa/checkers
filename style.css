@@ -1,0 +1,290 @@
+:root {
+  --table: #2e4b3c;
+  --cream: #f4e8d0;
+  --frame: #4a2814;
+  --frame-dark: #2b1608;
+  --red-face: #cf3229;
+  --red-edge: #7f1511;
+  --red-flute: #e8675a;
+  --black-face: #2a2826;
+  --black-edge: #0d0c0b;
+  --black-flute: #5a5650;
+  --crown: #f0c869;
+  --hint: #fff8e6;
+
+  --rail: 19rem;
+  --gap: 2.5rem;
+  --board-size: min(100vw - var(--rail) - var(--gap) - 3rem, 100dvh - 3rem, 46rem);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--table);
+  color: var(--cream);
+  font: 400 1rem/1.5 Bitter, Rockwell, Georgia, serif;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+p { margin: 0; }
+
+.layout {
+  display: grid;
+  grid-template-columns: var(--board-size) var(--rail);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "board title"
+    "board sign"
+    "board side";
+  column-gap: var(--gap);
+  row-gap: 1rem;
+}
+
+.title {
+  grid-area: title;
+  margin: 0;
+  font: 400 3.25rem/1.05 "Rozha One", Didot, Georgia, serif;
+}
+
+/* Board */
+.frame {
+  grid-area: board;
+  padding: 3.5%;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(91deg, transparent 0 7px, rgb(0 0 0 / 0.1) 7px 8px, transparent 8px 19px, rgb(255 255 255 / 0.04) 19px 20px),
+    var(--frame);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    inset 0 -2px 0 rgb(0 0 0 / 0.35),
+    0 18px 30px -12px rgb(0 0 0 / 0.65);
+}
+
+.board {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  touch-action: manipulation;
+  outline: 2px solid var(--frame-dark);
+}
+
+.paint, .pieces, .squares {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.squares {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.square {
+  position: relative;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  color: inherit;
+  cursor: default;
+}
+
+.square:not(:disabled) { cursor: pointer; }
+
+.square:focus-visible {
+  outline: 3px solid var(--hint);
+  outline-offset: -5px;
+  box-shadow: inset 0 0 0 6px var(--frame-dark);
+}
+
+/* Hints: where a piece can be picked up and where it can land. */
+.square.movable::after,
+.square.target::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.square.movable::after {
+  inset: 3%;
+  border: 2px dashed var(--hint);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+.square.movable.forced::after,
+.square.movable:hover::after,
+.square.selected::after { opacity: 1; }
+
+.square.selected::after {
+  border-style: solid;
+  border-width: 3px;
+}
+
+.square.target::after {
+  inset: 32%;
+  background: var(--hint);
+  box-shadow: 0 0 0 2px var(--frame-dark);
+}
+
+.square.target:hover::after { inset: 24%; }
+
+/* Pieces */
+.piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  height: 12.5%;
+  padding: 0.9%; /* percentages resolve against the full board width */
+  transform: translate(calc(var(--col) * 100%), calc(var(--row) * 100%));
+  transition: transform 220ms cubic-bezier(0.3, 0.9, 0.4, 1), opacity 180ms;
+}
+
+.piece.gone { opacity: 0; }
+.piece.is-selected { z-index: 2; }
+
+.disc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.55));
+  transition: transform 120ms, filter 120ms;
+}
+
+.piece.is-selected .disc {
+  transform: translateY(-5%) scale(1.08);
+  filter: drop-shadow(0 8px 5px rgb(0 0 0 / 0.5));
+}
+
+.piece.hop .disc { animation: hop 520ms ease-out 2; }
+
+@keyframes hop {
+  40% { transform: translateY(-16%); }
+  100% { transform: none; }
+}
+
+.disc-red { --face: var(--red-face); --edge: var(--red-edge); --flute: var(--red-flute); }
+.disc-black { --face: var(--black-face); --edge: var(--black-edge); --flute: var(--black-flute); }
+
+.disc-edge { fill: var(--edge); }
+.disc-flute { fill: none; stroke: var(--flute); stroke-width: 9; stroke-dasharray: 2.88; }
+.disc-face { fill: var(--face); }
+.disc-ring { fill: none; stroke: var(--flute); stroke-width: 2; }
+.disc-under { filter: brightness(0.75); }
+.disc-mark { fill: var(--crown); }
+
+/* Turn sign */
+.sign {
+  grid-area: sign;
+  padding: 1rem 1.15rem 1.1rem;
+  border-radius: 4px;
+  min-height: 7.25rem;
+  transition: background-color 180ms;
+}
+
+.sign[data-color="red"] { background: #b5261e; color: #fff5e4; }
+.sign[data-color="black"] { background: #151312; color: var(--cream); }
+.sign[data-color="draw"] { background: var(--frame); color: var(--cream); }
+
+.sign-main { font: 400 2.25rem/1.15 "Rozha One", Didot, Georgia, serif; }
+.sign-note { margin-top: 0.3rem; font-weight: 600; }
+
+/* Side rail */
+.side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.trays {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.tray-label { font-weight: 600; }
+
+.tray-pieces {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 1.75rem;
+  margin-top: 0.25rem;
+  padding-right: 0.75rem;
+}
+
+.tray-pieces .disc {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-right: -0.75rem;
+}
+
+.actions { display: flex; gap: 0.75rem; }
+
+.action {
+  flex: 1;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--cream);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--cream);
+  font: 600 1rem/1.2 Bitter, Rockwell, Georgia, serif;
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled) { background: rgb(244 232 208 / 0.14); }
+
+.action:disabled {
+  border-color: rgb(244 232 208 / 0.45);
+  color: rgb(244 232 208 / 0.65);
+  cursor: default;
+}
+
+.action.primary,
+.action.primary:hover:not(:disabled) { background: var(--cream); color: var(--frame-dark); }
+
+.action:focus-visible,
+.rules summary:focus-visible {
+  outline: 3px solid var(--cream);
+  outline-offset: 2px;
+}
+
+.rules summary { cursor: pointer; font-weight: 600; }
+.rules ul { margin: 0.5rem 0 0; padding-left: 1.15rem; }
+.rules li + li { margin-top: 0.25rem; }
+
+/* Phones and narrow tablets: stack, with the sign directly above the board. */
+@media (max-width: 760px) {
+  :root { --board-size: min(100vw - 2rem, 46rem); }
+
+  body { padding: 1rem; place-items: start center; }
+
+  .layout {
+    grid-template-columns: var(--board-size);
+    grid-template-rows: none;
+    grid-template-areas: "title" "sign" "board" "side";
+    row-gap: 0.75rem;
+  }
+
+  .title { font-size: 2rem; }
+  .sign { min-height: 5.25rem; padding: 0.6rem 0.85rem 0.7rem; }
+  .sign-main { font-size: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piece, .disc, .sign, .square.movable::after { transition: none; }
+  .piece.hop .disc { animation: none; }
+}

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkers</title>
+  <meta name="description" content="Play checkers with a friend on one device.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@400;600&family=Rozha+One&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="layout">
+    <h1 class="title">Checkers</h1>
+
+    <div class="frame">
+      <div class="board" id="board">
+        <svg class="paint" id="paint" viewBox="0 0 800 800" aria-hidden="true"></svg>
+        <div class="pieces" id="pieces" aria-hidden="true"></div>
+        <div class="squares" id="squares" role="group" aria-label="Checkers board"></div>
+      </div>
+    </div>
+
+    <section class="sign" id="sign" data-color="red">
+      <p class="sign-main" id="status" role="status">Red's turn</p>
+      <p class="sign-note" id="note"></p>
+    </section>
+
+    <section class="side">
+      <div class="trays">
+        <div class="tray">
+          <p class="tray-label" id="red-label"></p>
+          <div class="tray-pieces" id="red-tray" aria-hidden="true"></div>
+        </div>
+        <div class="tray">
+          <p class="tray-label" id="black-label"></p>
+          <div class="tray-pieces" id="black-tray" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="action" id="undo">Undo</button>
+        <button type="button" class="action" id="new-game">New game</button>
+      </div>
+
+      <details class="rules">
+        <summary>How to play</summary>
+        <ul>
+          <li>Red goes first, then players take turns on this device.</li>
+          <li>Pieces move one square diagonally forward.</li>
+          <li>Jump over a neighboring enemy piece to take it. If you can jump, you must.</li>
+          <li>Keep jumping with the same piece until it has no jumps left.</li>
+          <li>Reach the far row to get a king, which moves forward and backward.</li>
+          <li>You win when your opponent has no pieces left or no legal move.</li>
+        </ul>
+      </details>
+    </section>
+  </main>
+
+  <script src="rules.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
